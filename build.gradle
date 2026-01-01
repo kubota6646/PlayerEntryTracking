@@ -34,9 +34,3 @@ processResources {
         expand 'version': project.version
     }
 }
-
-jar {
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}

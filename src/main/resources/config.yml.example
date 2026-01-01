@@ -1,0 +1,15 @@
+# PlayerEntryTracking プラグイン設定ファイル（オプション）
+# 現在のバージョンでは、設定は不要です。このファイルは将来の拡張のために用意されています。
+
+# 将来の機能例：
+# メッセージのカスタマイズ:
+# messages:
+#   join: "&e{player}さんが参加しました"
+#   switch: "&e{player}さんが{server}サーバーへ移動しました"
+#   quit: "&e{player}さんが退出しました"
+#
+# 通知の有効/無効:
+# notifications:
+#   join: true
+#   switch: true
+#   quit: true

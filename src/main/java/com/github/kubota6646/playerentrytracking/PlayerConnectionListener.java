@@ -23,10 +23,17 @@ public class PlayerConnectionListener implements Listener {
      */
     @EventHandler
     public void onPostLogin(PostLoginEvent event) {
+        PluginConfig config = plugin.getPluginConfig();
+        
+        // 参加通知が無効の場合は何もしない
+        if (!config.isJoinNotificationEnabled()) {
+            return;
+        }
+        
         ProxiedPlayer player = event.getPlayer();
-        String message = player.getName() + "さんが参加しました";
+        String message = config.getJoinMessage(player.getName());
         plugin.broadcastMessage(message);
-        plugin.getLogger().info(message);
+        plugin.getLogger().info(player.getName() + "さんが参加しました");
     }
     
     /**
@@ -37,12 +44,21 @@ public class PlayerConnectionListener implements Listener {
         ProxiedPlayer player = event.getPlayer();
         
         // 初回接続時（前のサーバーがnull）はメッセージを送信しない
-        if (event.getFrom() != null) {
-            String serverName = player.getServer().getInfo().getName();
-            String message = player.getName() + "さんが" + serverName + "サーバーへ移動しました";
-            plugin.broadcastMessage(message);
-            plugin.getLogger().info(message);
+        if (event.getFrom() == null) {
+            return;
         }
+        
+        PluginConfig config = plugin.getPluginConfig();
+        
+        // サーバー移動通知が無効の場合は何もしない
+        if (!config.isSwitchNotificationEnabled()) {
+            return;
+        }
+        
+        String serverName = player.getServer().getInfo().getName();
+        String message = config.getSwitchMessage(player.getName(), serverName);
+        plugin.broadcastMessage(message);
+        plugin.getLogger().info(player.getName() + "さんが" + serverName + "サーバーへ移動しました");
     }
     
     /**
@@ -50,9 +66,16 @@ public class PlayerConnectionListener implements Listener {
      */
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
+        PluginConfig config = plugin.getPluginConfig();
+        
+        // 退出通知が無効の場合は何もしない
+        if (!config.isQuitNotificationEnabled()) {
+            return;
+        }
+        
         ProxiedPlayer player = event.getPlayer();
-        String message = player.getName() + "さんが退出しました";
+        String message = config.getQuitMessage(player.getName());
         plugin.broadcastMessage(message);
-        plugin.getLogger().info(message);
+        plugin.getLogger().info(player.getName() + "さんが退出しました");
     }
 }

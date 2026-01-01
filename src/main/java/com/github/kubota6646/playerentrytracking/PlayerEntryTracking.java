@@ -1,6 +1,5 @@
 package com.github.kubota6646.playerentrytracking;
 
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -10,10 +9,15 @@ import net.md_5.bungee.api.plugin.Plugin;
  */
 public class PlayerEntryTracking extends Plugin {
     
+    private PluginConfig pluginConfig;
+    
     @Override
     public void onEnable() {
         // プラグイン起動時の処理
         getLogger().info("PlayerEntryTracking プラグインが有効になりました");
+        
+        // 設定ファイルを読み込む
+        pluginConfig = new PluginConfig(this);
         
         // イベントリスナーを登録
         getProxy().getPluginManager().registerListener(this, new PlayerConnectionListener(this));
@@ -28,11 +32,19 @@ public class PlayerEntryTracking extends Plugin {
     }
     
     /**
+     * プラグイン設定を取得
+     * @return プラグイン設定
+     */
+    public PluginConfig getPluginConfig() {
+        return pluginConfig;
+    }
+    
+    /**
      * 全プレイヤーにメッセージを送信する
-     * @param message 送信するメッセージ
+     * @param message 送信するメッセージ（カラーコード変換済み）
      */
     public void broadcastMessage(String message) {
-        TextComponent textComponent = new TextComponent(ChatColor.YELLOW + message);
+        TextComponent textComponent = new TextComponent(message);
         getProxy().broadcast(textComponent);
     }
 }

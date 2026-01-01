@@ -1,15 +1,28 @@
-# PlayerEntryTracking プラグイン設定ファイル（オプション）
-# 現在のバージョンでは、設定は不要です。このファイルは将来の拡張のために用意されています。
-
-# 将来の機能例：
-# メッセージのカスタマイズ:
-# messages:
-#   join: "&e{player}さんが参加しました"
-#   switch: "&e{player}さんが{server}サーバーへ移動しました"
-#   quit: "&e{player}さんが退出しました"
+# PlayerEntryTracking プラグイン設定ファイル（サンプル）
+# このファイルは参考用です。実際の設定は config.yml で行ってください。
 #
-# 通知の有効/無効:
-# notifications:
-#   join: true
-#   switch: true
-#   quit: true
+# プラグインを初回起動すると、plugins/PlayerEntryTracking/config.yml が自動生成されます。
+# そのファイルを編集してメッセージをカスタマイズできます。
+
+# メッセージ設定例
+# 使用可能なプレースホルダー:
+#   {player} - プレイヤー名
+#   {server} - サーバー名（移動メッセージのみ）
+# カラーコード: &0-9, &a-f, &r (リセット), &l (太字), &m (取り消し線), &n (下線), &o (斜体)
+messages:
+  join: "&e{player}さんが参加しました"
+  switch: "&e{player}さんが{server}サーバーへ移動しました"
+  quit: "&e{player}さんが退出しました"
+
+# カスタマイズ例:
+# messages:
+#   join: "&a[+] &f{player}"
+#   switch: "&b{player} &7→ &e{server}"
+#   quit: "&c[-] &f{player}"
+
+# 通知の有効/無効設定
+notifications:
+  join: true
+  switch: true
+  quit: true
+

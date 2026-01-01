@@ -11,6 +11,7 @@ BungeeCordプロキシサーバー用のプレイヤー接続通知プラグイ�
 - 🟢 **参加通知**: プレイヤーがBungeeCordプロキシに接続すると「testさんが参加しました」と全員に通知
 - 🔄 **移動通知**: プレイヤーがサーバー間を移動すると「testさんが02サーバーへ移動しました」と全員に通知
 - 🔴 **退出通知**: プレイヤーがBungeeCordプロキシから切断すると「testさんが退出しました」と全員に通知
+- ⚙️ **カスタマイズ可能**: config.ymlでメッセージや色を自由にカスタマイズ可能
 
 ## 動作環境
 
@@ -57,13 +58,46 @@ gradlew.bat build
 
 ## 使用方法
 
-プラグインをインストールした後、特別な設定は不要です。プラグインは自動的に以下のイベントを監視します：
+プラグインをインストールした後、初回起動時に自動的に `plugins/PlayerEntryTracking/config.yml` が生成されます。
+
+### 基本的な使い方
+
+デフォルト設定でそのまま使用できます。プラグインは自動的に以下のイベントを監視します：
 
 1. **プレイヤーの参加**: BungeeCordプロキシに接続した時
 2. **サーバー移動**: プロキシ内の別のサーバーに移動した時
 3. **プレイヤーの退出**: BungeeCordプロキシから切断した時
 
-すべての通知メッセージは黄色で表示され、接続中の全プレイヤーに送信されます。
+### メッセージのカスタマイズ
+
+`plugins/PlayerEntryTracking/config.yml` を編集してメッセージをカスタマイズできます：
+
+```yaml
+messages:
+  join: "&a[+] &f{player}"
+  switch: "&b{player} &7→ &e{server}"
+  quit: "&c[-] &f{player}"
+```
+
+**使用可能なプレースホルダー:**
+- `{player}` - プレイヤー名
+- `{server}` - サーバー名（移動メッセージのみ）
+
+**カラーコード:**
+- `&0-9`, `&a-f` - 色
+- `&l` - 太字、`&m` - 取り消し線、`&n` - 下線、`&o` - 斜体
+- `&r` - リセット
+
+### 通知の有効/無効
+
+特定の通知を無効にすることもできます：
+
+```yaml
+notifications:
+  join: true    # 参加通知
+  switch: false # サーバー移動通知を無効化
+  quit: true    # 退出通知
+```
 
 📖 **詳しい使い方やトラブルシューティングは [使い方ガイド（USAGE_GUIDE.md）](USAGE_GUIDE.md) をご覧ください。**
 
@@ -76,9 +110,12 @@ PlayerEntryTracking/
 │       ├── java/
 │       │   └── com/github/kubota6646/playerentrytracking/
 │       │       ├── PlayerEntryTracking.java         # メインプラグインクラス
-│       │       └── PlayerConnectionListener.java    # イベントリスナー
+│       │       ├── PlayerConnectionListener.java    # イベントリスナー
+│       │       └── PluginConfig.java                # 設定管理クラス
 │       └── resources/
-│           └── bungee.yml                           # プラグイン設定ファイル
+│           ├── bungee.yml                           # プラグイン設定ファイル
+│           ├── config.yml                           # メッセージ設定ファイル
+│           └── config.yml.example                   # 設定例
 ├── build.gradle                                     # Gradle設定ファイル
 ├── settings.gradle                                  # Gradleプロジェクト設定
 └── README.md                                        # このファイル

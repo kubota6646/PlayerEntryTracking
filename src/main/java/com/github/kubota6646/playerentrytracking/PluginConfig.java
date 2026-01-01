@@ -57,6 +57,13 @@ public class PluginConfig {
             plugin.getLogger().severe("config.ymlの読み込みに失敗しました: " + e.getMessage());
             // デフォルト設定を使用
             config = new Configuration();
+            // デフォルト値を設定
+            config.set("messages.join", DEFAULT_JOIN_MESSAGE);
+            config.set("messages.switch", DEFAULT_SWITCH_MESSAGE);
+            config.set("messages.quit", DEFAULT_QUIT_MESSAGE);
+            config.set("notifications.join", true);
+            config.set("notifications.switch", true);
+            config.set("notifications.quit", true);
         }
     }
     
@@ -73,6 +80,9 @@ public class PluginConfig {
      * @return フォーマットされたメッセージ
      */
     public String getJoinMessage(String playerName) {
+        if (playerName == null) {
+            playerName = "Unknown";
+        }
         String message = config.getString("messages.join", DEFAULT_JOIN_MESSAGE);
         return translateColorCodes(message.replace("{player}", playerName));
     }
@@ -84,6 +94,12 @@ public class PluginConfig {
      * @return フォーマットされたメッセージ
      */
     public String getSwitchMessage(String playerName, String serverName) {
+        if (playerName == null) {
+            playerName = "Unknown";
+        }
+        if (serverName == null) {
+            serverName = "Unknown";
+        }
         String message = config.getString("messages.switch", DEFAULT_SWITCH_MESSAGE);
         return translateColorCodes(message.replace("{player}", playerName).replace("{server}", serverName));
     }
@@ -94,6 +110,9 @@ public class PluginConfig {
      * @return フォーマットされたメッセージ
      */
     public String getQuitMessage(String playerName) {
+        if (playerName == null) {
+            playerName = "Unknown";
+        }
         String message = config.getString("messages.quit", DEFAULT_QUIT_MESSAGE);
         return translateColorCodes(message.replace("{player}", playerName));
     }

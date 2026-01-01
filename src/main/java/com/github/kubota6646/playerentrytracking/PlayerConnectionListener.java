@@ -48,6 +48,11 @@ public class PlayerConnectionListener implements Listener {
             return;
         }
         
+        // プレイヤーのサーバー情報がnullの場合は何もしない（遷移中の状態）
+        if (player.getServer() == null) {
+            return;
+        }
+        
         PluginConfig config = plugin.getPluginConfig();
         
         // サーバー移動通知が無効の場合は何もしない

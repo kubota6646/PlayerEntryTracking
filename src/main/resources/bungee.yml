@@ -1,0 +1,6 @@
+# BungeeCordプラグイン設定ファイル
+name: PlayerEntryTracking
+version: ${version}
+main: com.github.kubota6646.playerentrytracking.PlayerEntryTracking
+author: kubota6646
+description: プレイヤーの参加、サーバー移動、退出を全員に通知するBungeeCordプラグイン

@@ -110,10 +110,13 @@ public class PlayerDataManager {
      * @return 初回参加の場合true
      */
     public boolean checkAndRecordPlayer(UUID uuid) {
-        // 最初に読み取りロックで確認
+        // 最初に読み取りロックで確認（高速パス：ほとんどのケースは既存プレイヤー）
         lock.readLock().lock();
         boolean isFirstJoin = !playerCache.contains(uuid);
         lock.readLock().unlock();
+        // 注：ここで読み取りロックを解放するのは意図的。
+        // 既存プレイヤーの場合は早期リターンでき、書き込みロックの競合を最小化できる。
+        // 初回参加の可能性がある場合のみ書き込みロックを取得し、ダブルチェックで確認。
         
         if (isFirstJoin) {
             // 書き込みロックを取得

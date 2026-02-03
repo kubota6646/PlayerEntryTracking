@@ -77,6 +77,20 @@ public class PluginConfig {
     }
     
     /**
+     * メッセージを取得し、nullの場合はデフォルト値を返す
+     * @param key 設定キー
+     * @param defaultValue デフォルト値
+     * @return メッセージ
+     */
+    private String getMessageOrDefault(String key, String defaultValue) {
+        String message = config.getString(key, defaultValue);
+        if (message == null) {
+            message = defaultValue;
+        }
+        return message;
+    }
+    
+    /**
      * 参加メッセージを取得
      * @param playerName プレイヤー名
      * @return フォーマットされたメッセージ
@@ -85,10 +99,7 @@ public class PluginConfig {
         if (playerName == null) {
             playerName = "Unknown";
         }
-        String message = config.getString("messages.join", DEFAULT_JOIN_MESSAGE);
-        if (message == null) {
-            message = DEFAULT_JOIN_MESSAGE;
-        }
+        String message = getMessageOrDefault("messages.join", DEFAULT_JOIN_MESSAGE);
         return translateColorCodes(message.replace("{player}", playerName));
     }
     
@@ -101,10 +112,7 @@ public class PluginConfig {
         if (playerName == null) {
             playerName = "Unknown";
         }
-        String message = config.getString("messages.firstJoin", DEFAULT_FIRST_JOIN_MESSAGE);
-        if (message == null) {
-            message = DEFAULT_FIRST_JOIN_MESSAGE;
-        }
+        String message = getMessageOrDefault("messages.firstJoin", DEFAULT_FIRST_JOIN_MESSAGE);
         return translateColorCodes(message.replace("{player}", playerName));
     }
     
@@ -121,10 +129,7 @@ public class PluginConfig {
         if (serverName == null) {
             serverName = "Unknown";
         }
-        String message = config.getString("messages.switch", DEFAULT_SWITCH_MESSAGE);
-        if (message == null) {
-            message = DEFAULT_SWITCH_MESSAGE;
-        }
+        String message = getMessageOrDefault("messages.switch", DEFAULT_SWITCH_MESSAGE);
         return translateColorCodes(message.replace("{player}", playerName).replace("{server}", serverName));
     }
     
@@ -137,10 +142,7 @@ public class PluginConfig {
         if (playerName == null) {
             playerName = "Unknown";
         }
-        String message = config.getString("messages.quit", DEFAULT_QUIT_MESSAGE);
-        if (message == null) {
-            message = DEFAULT_QUIT_MESSAGE;
-        }
+        String message = getMessageOrDefault("messages.quit", DEFAULT_QUIT_MESSAGE);
         return translateColorCodes(message.replace("{player}", playerName));
     }
     

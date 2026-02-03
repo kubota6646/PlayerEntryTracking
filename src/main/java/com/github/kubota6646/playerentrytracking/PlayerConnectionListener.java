@@ -31,9 +31,24 @@ public class PlayerConnectionListener implements Listener {
         }
         
         ProxiedPlayer player = event.getPlayer();
-        String message = config.getJoinMessage(player.getName());
+        PlayerDataManager dataManager = plugin.getPlayerDataManager();
+        
+        // 初回参加かどうかをチェック
+        boolean isFirstJoin = dataManager.isFirstJoin(player.getUniqueId());
+        
+        // メッセージを送信
+        String message;
+        if (isFirstJoin) {
+            message = config.getFirstJoinMessage(player.getName());
+            plugin.getLogger().info(player.getName() + "さんがサーバーに初参加しました");
+        } else {
+            message = config.getJoinMessage(player.getName());
+            plugin.getLogger().info(player.getName() + "さんが参加しました");
+        }
         plugin.broadcastMessage(message);
-        plugin.getLogger().info(player.getName() + "さんが参加しました");
+        
+        // プレイヤーのUUIDを記録
+        dataManager.recordPlayer(player.getUniqueId());
     }
     
     /**

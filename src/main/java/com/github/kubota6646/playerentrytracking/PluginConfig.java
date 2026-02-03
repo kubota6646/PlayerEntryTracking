@@ -21,6 +21,7 @@ public class PluginConfig {
     
     // デフォルトメッセージ
     private static final String DEFAULT_JOIN_MESSAGE = "&e{player}さんが参加しました";
+    private static final String DEFAULT_FIRST_JOIN_MESSAGE = "&a{player}さんがサーバーに初参加しました！";
     private static final String DEFAULT_SWITCH_MESSAGE = "&e{player}さんが{server}サーバーへ移動しました";
     private static final String DEFAULT_QUIT_MESSAGE = "&e{player}さんが退出しました";
     
@@ -59,6 +60,7 @@ public class PluginConfig {
             config = new Configuration();
             // デフォルト値を設定
             config.set("messages.join", DEFAULT_JOIN_MESSAGE);
+            config.set("messages.firstJoin", DEFAULT_FIRST_JOIN_MESSAGE);
             config.set("messages.switch", DEFAULT_SWITCH_MESSAGE);
             config.set("messages.quit", DEFAULT_QUIT_MESSAGE);
             config.set("notifications.join", true);
@@ -84,6 +86,19 @@ public class PluginConfig {
             playerName = "Unknown";
         }
         String message = config.getString("messages.join", DEFAULT_JOIN_MESSAGE);
+        return translateColorCodes(message.replace("{player}", playerName));
+    }
+    
+    /**
+     * 初参加メッセージを取得
+     * @param playerName プレイヤー名
+     * @return フォーマットされたメッセージ
+     */
+    public String getFirstJoinMessage(String playerName) {
+        if (playerName == null) {
+            playerName = "Unknown";
+        }
+        String message = config.getString("messages.firstJoin", DEFAULT_FIRST_JOIN_MESSAGE);
         return translateColorCodes(message.replace("{player}", playerName));
     }
     

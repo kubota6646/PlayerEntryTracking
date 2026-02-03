@@ -10,6 +10,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 public class PlayerEntryTracking extends Plugin {
     
     private PluginConfig pluginConfig;
+    private PlayerDataManager playerDataManager;
     
     @Override
     public void onEnable() {
@@ -18,6 +19,9 @@ public class PlayerEntryTracking extends Plugin {
         
         // 設定ファイルを読み込む
         pluginConfig = new PluginConfig(this);
+        
+        // プレイヤーデータマネージャーを初期化
+        playerDataManager = new PlayerDataManager(this);
         
         // イベントリスナーを登録
         getProxy().getPluginManager().registerListener(this, new PlayerConnectionListener(this));
@@ -37,6 +41,14 @@ public class PlayerEntryTracking extends Plugin {
      */
     public PluginConfig getPluginConfig() {
         return pluginConfig;
+    }
+    
+    /**
+     * プレイヤーデータマネージャーを取得
+     * @return プレイヤーデータマネージャー
+     */
+    public PlayerDataManager getPlayerDataManager() {
+        return playerDataManager;
     }
     
     /**

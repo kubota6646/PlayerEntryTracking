@@ -33,8 +33,8 @@ public class PlayerConnectionListener implements Listener {
         ProxiedPlayer player = event.getPlayer();
         PlayerDataManager dataManager = plugin.getPlayerDataManager();
         
-        // 初回参加かどうかをチェック
-        boolean isFirstJoin = dataManager.isFirstJoin(player.getUniqueId());
+        // 初回参加かどうかをチェックし、同時にUUIDを記録（アトミック操作）
+        boolean isFirstJoin = dataManager.checkAndRecordPlayer(player.getUniqueId());
         
         // メッセージを送信
         String message;
@@ -46,9 +46,6 @@ public class PlayerConnectionListener implements Listener {
             plugin.getLogger().info(player.getName() + "さんが参加しました");
         }
         plugin.broadcastMessage(message);
-        
-        // プレイヤーのUUIDを記録
-        dataManager.recordPlayer(player.getUniqueId());
     }
     
     /**

@@ -8,8 +8,11 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * プレイヤーのUUIDデータを管理するクラス
@@ -19,9 +22,13 @@ public class PlayerDataManager {
     private final Plugin plugin;
     private final File dataFile;
     private Configuration data;
+    private final Set<UUID> playerCache;
+    private final ReentrantReadWriteLock lock;
     
     public PlayerDataManager(Plugin plugin) {
         this.plugin = plugin;
+        this.playerCache = new HashSet<>();
+        this.lock = new ReentrantReadWriteLock();
         
         // プラグインのデータフォルダを作成
         if (!plugin.getDataFolder().exists()) {
@@ -47,6 +54,19 @@ public class PlayerDataManager {
             try {
                 data = ConfigurationProvider.getProvider(YamlConfiguration.class).load(dataFile);
                 plugin.getLogger().info("playerdata.ymlを読み込みました");
+                
+                // キャッシュにロード
+                List<String> players = data.getStringList("players");
+                if (players != null) {
+                    for (String uuidString : players) {
+                        try {
+                            playerCache.add(UUID.fromString(uuidString));
+                        } catch (IllegalArgumentException e) {
+                            plugin.getLogger().warning("無効なUUID形式をスキップしました: " + uuidString);
+                        }
+                    }
+                    plugin.getLogger().info(playerCache.size() + "件のプレイヤーデータを読み込みました");
+                }
             } catch (IOException e) {
                 plugin.getLogger().severe("playerdata.ymlの読み込みに失敗しました: " + e.getMessage());
                 // エラーの場合は新しいConfigurationを作成
@@ -57,47 +77,59 @@ public class PlayerDataManager {
     }
     
     /**
-     * データファイルを保存する
+     * データファイルを保存する（非同期）
      */
     private void saveData() {
-        try {
-            ConfigurationProvider.getProvider(YamlConfiguration.class).save(data, dataFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("playerdata.ymlの保存に失敗しました: " + e.getMessage());
-        }
+        plugin.getProxy().getScheduler().runAsync(plugin, () -> {
+            lock.writeLock().lock();
+            try {
+                ConfigurationProvider.getProvider(YamlConfiguration.class).save(data, dataFile);
+            } catch (IOException e) {
+                plugin.getLogger().severe("playerdata.ymlの保存に失敗しました: " + e.getMessage());
+            } finally {
+                lock.writeLock().unlock();
+            }
+        });
     }
     
     /**
-     * プレイヤーが初回参加かどうかをチェック
+     * プレイヤーが初回参加かどうかをチェックし、記録する
      * @param uuid プレイヤーのUUID
      * @return 初回参加の場合true
      */
-    public boolean isFirstJoin(UUID uuid) {
-        List<String> players = data.getStringList("players");
-        if (players == null) {
-            players = new ArrayList<>();
+    public synchronized boolean checkAndRecordPlayer(UUID uuid) {
+        lock.readLock().lock();
+        try {
+            // キャッシュでチェック（O(1)操作）
+            boolean isFirstJoin = !playerCache.contains(uuid);
+            
+            if (isFirstJoin) {
+                // 初回参加の場合、キャッシュとデータに追加
+                lock.readLock().unlock();
+                lock.writeLock().lock();
+                try {
+                    playerCache.add(uuid);
+                    
+                    List<String> players = data.getStringList("players");
+                    if (players == null) {
+                        players = new ArrayList<>();
+                    }
+                    players.add(uuid.toString());
+                    data.set("players", players);
+                    
+                    // 非同期で保存
+                    saveData();
+                    plugin.getLogger().info("プレイヤー " + uuid.toString() + " を記録しました");
+                    
+                    lock.readLock().lock();
+                } finally {
+                    lock.writeLock().unlock();
+                }
+            }
+            
+            return isFirstJoin;
+        } finally {
+            lock.readLock().unlock();
         }
-        return !players.contains(uuid.toString());
-    }
-    
-    /**
-     * プレイヤーのUUIDを記録する
-     * @param uuid プレイヤーのUUID
-     */
-    public void recordPlayer(UUID uuid) {
-        List<String> players = data.getStringList("players");
-        if (players == null) {
-            players = new ArrayList<>();
-        }
-        
-        // 既に記録されている場合は何もしない
-        if (players.contains(uuid.toString())) {
-            return;
-        }
-        
-        players.add(uuid.toString());
-        data.set("players", players);
-        saveData();
-        plugin.getLogger().info("プレイヤー " + uuid.toString() + " を記録しました");
     }
 }

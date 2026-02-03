@@ -86,6 +86,9 @@ public class PluginConfig {
             playerName = "Unknown";
         }
         String message = config.getString("messages.join", DEFAULT_JOIN_MESSAGE);
+        if (message == null) {
+            message = DEFAULT_JOIN_MESSAGE;
+        }
         return translateColorCodes(message.replace("{player}", playerName));
     }
     
@@ -99,6 +102,9 @@ public class PluginConfig {
             playerName = "Unknown";
         }
         String message = config.getString("messages.firstJoin", DEFAULT_FIRST_JOIN_MESSAGE);
+        if (message == null) {
+            message = DEFAULT_FIRST_JOIN_MESSAGE;
+        }
         return translateColorCodes(message.replace("{player}", playerName));
     }
     
@@ -116,6 +122,9 @@ public class PluginConfig {
             serverName = "Unknown";
         }
         String message = config.getString("messages.switch", DEFAULT_SWITCH_MESSAGE);
+        if (message == null) {
+            message = DEFAULT_SWITCH_MESSAGE;
+        }
         return translateColorCodes(message.replace("{player}", playerName).replace("{server}", serverName));
     }
     
@@ -129,6 +138,9 @@ public class PluginConfig {
             playerName = "Unknown";
         }
         String message = config.getString("messages.quit", DEFAULT_QUIT_MESSAGE);
+        if (message == null) {
+            message = DEFAULT_QUIT_MESSAGE;
+        }
         return translateColorCodes(message.replace("{player}", playerName));
     }
     

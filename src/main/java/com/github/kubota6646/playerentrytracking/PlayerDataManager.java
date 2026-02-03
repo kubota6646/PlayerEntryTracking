@@ -47,7 +47,8 @@ public class PlayerDataManager {
             // ファイルが存在しない場合は新規作成
             data = new Configuration();
             data.set("players", new ArrayList<String>());
-            saveData();
+            // 初期化時は同期的に保存
+            saveDataSync();
             plugin.getLogger().info("playerdata.ymlを作成しました");
         } else {
             // 既存のファイルを読み込む
@@ -77,6 +78,17 @@ public class PlayerDataManager {
     }
     
     /**
+     * データファイルを保存する（同期）
+     */
+    private void saveDataSync() {
+        try {
+            ConfigurationProvider.getProvider(YamlConfiguration.class).save(data, dataFile);
+        } catch (IOException e) {
+            plugin.getLogger().severe("playerdata.ymlの保存に失敗しました: " + e.getMessage());
+        }
+    }
+    
+    /**
      * データファイルを保存する（非同期）
      */
     private void saveData() {
@@ -97,17 +109,19 @@ public class PlayerDataManager {
      * @param uuid プレイヤーのUUID
      * @return 初回参加の場合true
      */
-    public synchronized boolean checkAndRecordPlayer(UUID uuid) {
+    public boolean checkAndRecordPlayer(UUID uuid) {
+        // 最初に読み取りロックで確認
         lock.readLock().lock();
-        try {
-            // キャッシュでチェック（O(1)操作）
-            boolean isFirstJoin = !playerCache.contains(uuid);
-            
-            if (isFirstJoin) {
-                // 初回参加の場合、キャッシュとデータに追加
-                lock.readLock().unlock();
-                lock.writeLock().lock();
-                try {
+        boolean isFirstJoin = !playerCache.contains(uuid);
+        lock.readLock().unlock();
+        
+        if (isFirstJoin) {
+            // 書き込みロックを取得
+            lock.writeLock().lock();
+            try {
+                // ダブルチェック：書き込みロック取得後に再度確認
+                if (!playerCache.contains(uuid)) {
+                    // 初回参加の場合、キャッシュとデータに追加
                     playerCache.add(uuid);
                     
                     List<String> players = data.getStringList("players");
@@ -121,15 +135,15 @@ public class PlayerDataManager {
                     saveData();
                     plugin.getLogger().info("プレイヤー " + uuid.toString() + " を記録しました");
                     
-                    lock.readLock().lock();
-                } finally {
-                    lock.writeLock().unlock();
+                    return true;
                 }
+                // 他のスレッドが既に追加していた場合
+                return false;
+            } finally {
+                lock.writeLock().unlock();
             }
-            
-            return isFirstJoin;
-        } finally {
-            lock.readLock().unlock();
         }
+        
+        return false;
     }
 }
